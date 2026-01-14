@@ -1,16 +1,15 @@
 import { createClient } from '@supabase/supabase-js';
 
 // SECURITY NOTE:
-// As chaves abaixo foram adicionadas para garantir o funcionamento imediato do frontend.
-// Para produção no Vercel, recomenda-se mover estes valores para "Environment Variables":
+// Para produção no Vercel, defina as variáveis de ambiente:
 // VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY
-//
-// Certifique-se de que o Row Level Security (RLS) esteja ativado no Supabase.
 
 const FALLBACK_URL = 'https://yajusmgvndomnzbkwlvt.supabase.co';
+// Nota: Esta chave parece ser um token específico ou chave de projeto. 
+// O ideal é usar a chave 'anon' pública (geralmente começa com eyJ...) encontrada em Project Settings > API.
 const FALLBACK_KEY = 'sb_publishable_dZTu19j0hUnWzZa9NwdK8Q_-dSdQY_Z';
 
-// Helper function to safely access environment variables
+// Helper seguro para variáveis de ambiente
 const getEnv = (key: string) => {
   try {
     // @ts-ignore
@@ -18,28 +17,38 @@ const getEnv = (key: string) => {
       // @ts-ignore
       return import.meta.env[key];
     }
-  } catch (e) {
-    // Ignore error
-  }
+  } catch (e) {}
 
   try {
     if (typeof process !== 'undefined' && process.env && process.env[key]) {
       return process.env[key];
     }
-  } catch (e) {
-    // Ignore error
-  }
+  } catch (e) {}
 
   return undefined;
 };
 
-// Priority: Environment Variable > Hardcoded Fallback
 const supabaseUrl = getEnv('VITE_SUPABASE_URL') || getEnv('SUPABASE_URL') || FALLBACK_URL;
 const supabaseKey = getEnv('VITE_SUPABASE_ANON_KEY') || getEnv('SUPABASE_ANON_KEY') || FALLBACK_KEY;
 
-// Validation to prevent "supabaseUrl is required" error
-if (!supabaseUrl || typeof supabaseUrl !== 'string') {
-    throw new Error('Supabase URL is missing. Please check your configuration.');
+let client;
+
+try {
+  if (!supabaseUrl || !supabaseKey) {
+    console.error('Supabase Credentials Missing');
+  }
+  client = createClient(supabaseUrl, supabaseKey);
+} catch (error) {
+  console.error('Supabase Initialization Error:', error);
+  // Fallback seguro para não quebrar a tela (white screen)
+  client = {
+    from: () => ({
+      select: () => ({ data: [], error: { message: 'Supabase not initialized properly' } }),
+      insert: () => ({ error: { message: 'Supabase not initialized properly' } }),
+      update: () => ({ error: { message: 'Supabase not initialized properly' } }),
+      delete: () => ({ error: { message: 'Supabase not initialized properly' } }),
+    })
+  } as any;
 }
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+export const supabase = client;
