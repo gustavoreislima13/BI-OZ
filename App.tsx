@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Component, ReactNode } from 'react';
 import { LayoutDashboard, PlusSquare, Table, BrainCircuit, BarChart3, Menu, X, Database, PanelLeftClose, PanelLeftOpen, Loader2 } from 'lucide-react';
 import { Dashboard } from './components/Dashboard';
 import { SalesEntry } from './components/SalesEntry';
@@ -9,18 +9,16 @@ import { Sale } from './types';
 
 // Simple Error Boundary Component to prevent white screen
 interface ErrorBoundaryProps {
-  children: React.ReactNode;
+  children?: ReactNode;
 }
 
 interface ErrorBoundaryState {
   hasError: boolean;
 }
 
-class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  constructor(props: ErrorBoundaryProps) {
-    super(props);
-    this.state = { hasError: false };
-  }
+class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  state: ErrorBoundaryState = { hasError: false };
+
   static getDerivedStateFromError(error: any) {
     return { hasError: true };
   }
