@@ -4,7 +4,7 @@ import { Dashboard } from './components/Dashboard';
 import { SalesEntry } from './components/SalesEntry';
 import { SalesList } from './components/SalesList';
 import { AIAnalyst } from './components/AIAnalyst';
-import { getSales, addSale, generateMockData, saveSales } from './services/storage';
+import { getSales, addSale, generateMockData, saveSales, updateSale, deleteSale } from './services/storage';
 import { Sale } from './types';
 
 function App() {
@@ -50,6 +50,31 @@ function App() {
       alert('Venda salva com sucesso!');
     } catch (error) {
       alert('Erro ao salvar venda. Tente novamente.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleUpdateSale = async (updatedSale: Sale) => {
+    try {
+      setIsLoading(true);
+      await updateSale(updatedSale);
+      await fetchData();
+      alert('Venda atualizada com sucesso!');
+    } catch (error) {
+      alert('Erro ao atualizar venda.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteSale = async (id: string) => {
+    try {
+      setIsLoading(true);
+      await deleteSale(id);
+      await fetchData();
+    } catch (error) {
+      alert('Erro ao excluir venda.');
     } finally {
       setIsLoading(false);
     }
@@ -245,7 +270,12 @@ function App() {
                 )}
 
                 {currentView === 'list' && (
-                  <SalesList sales={sales} onImportSales={handleImportSales} />
+                  <SalesList 
+                    sales={sales} 
+                    onImportSales={handleImportSales} 
+                    onUpdateSale={handleUpdateSale}
+                    onDeleteSale={handleDeleteSale}
+                  />
                 )}
 
                 {currentView === 'ai' && (

@@ -63,6 +63,35 @@ export const addSale = async (sale: Sale): Promise<void> => {
   }
 };
 
+export const updateSale = async (sale: Sale): Promise<void> => {
+  const dbRow = mapToDb(sale);
+  
+  // Remove ID from the update payload to avoid primary key conflicts (though usually ignored by update if not changing)
+  // But we need the ID for the .eq() clause
+  
+  const { error } = await supabase
+    .from('sales')
+    .update(dbRow)
+    .eq('id', sale.id);
+
+  if (error) {
+    console.error('Error updating sale:', error);
+    throw error;
+  }
+};
+
+export const deleteSale = async (id: string): Promise<void> => {
+  const { error } = await supabase
+    .from('sales')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error deleting sale:', error);
+    throw error;
+  }
+};
+
 export const generateMockData = async (): Promise<Sale[]> => {
   const mockSales: Sale[] = [
     { id: '1', consultantName: 'Ana Silva', clientName: 'Transportadora Veloz', type: ConsortiumType.HEAVY_MACHINERY, value: 450000, date: '2024-05-10', status: SaleStatus.APPROVED },
