@@ -12,6 +12,7 @@ const mapFromDb = (row: any): Sale => ({
 });
 
 const mapToDb = (sale: Sale) => ({
+  id: sale.id, // Include ID so it persists in mock store and can be referenced later
   consultant_name: sale.consultantName,
   client_name: sale.clientName,
   type: sale.type,
@@ -27,7 +28,7 @@ export const getSales = async (): Promise<Sale[]> => {
     .order('date', { ascending: false });
 
   if (error) {
-    console.error('Error fetching sales:', error);
+    console.error('Error fetching sales:', JSON.stringify(error));
     return [];
   }
 
@@ -41,7 +42,7 @@ export const saveSales = async (sales: Sale[]): Promise<void> => {
     .insert(dbRows);
 
   if (error) {
-    console.error('Error bulk saving sales:', error);
+    console.error('Error bulk saving sales:', JSON.stringify(error));
     throw error;
   }
 };
@@ -53,7 +54,7 @@ export const addSale = async (sale: Sale): Promise<void> => {
     .insert([dbRow]);
 
   if (error) {
-    console.error('Error adding sale:', error);
+    console.error('Error adding sale:', JSON.stringify(error));
     throw error;
   }
 };
@@ -67,7 +68,7 @@ export const updateSale = async (sale: Sale): Promise<void> => {
     .eq('id', sale.id);
 
   if (error) {
-    console.error('Error updating sale:', error);
+    console.error('Error updating sale:', JSON.stringify(error));
     throw error;
   }
 };
@@ -79,7 +80,7 @@ export const deleteSale = async (id: string): Promise<void> => {
     .eq('id', id);
 
   if (error) {
-    console.error('Error deleting sale:', error);
+    console.error('Error deleting sale:', JSON.stringify(error));
     throw error;
   }
 };
@@ -94,7 +95,7 @@ export const generateMockData = async (): Promise<Sale[]> => {
   const { error } = await supabase.from('sales').insert(dbRows);
   
   if (error) {
-    console.error("Error generating mock data", error);
+    console.error("Error generating mock data", JSON.stringify(error));
     return [];
   }
   return mockSales;
